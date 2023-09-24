@@ -1,17 +1,15 @@
 package github.syncgui.onlinestoreapi.services;
 
 import github.syncgui.onlinestoreapi.dtos.ProductDto;
-import github.syncgui.onlinestoreapi.mappers.ProductMapper;
 import github.syncgui.onlinestoreapi.models.Product;
 import github.syncgui.onlinestoreapi.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import static github.syncgui.onlinestoreapi.mappers.ProductMapper.toDto;
-import static github.syncgui.onlinestoreapi.mappers.ProductMapper.toModel;
+import static github.syncgui.onlinestoreapi.mappers.Mapper.parseListObject;
+import static github.syncgui.onlinestoreapi.mappers.Mapper.parseObject;
 
 @Service
 public class ProductService {
@@ -20,31 +18,33 @@ public class ProductService {
     ProductRepository repository;
 
     public List<ProductDto> findAll() {
-        return repository.findAll().stream().map(ProductMapper::toDto).toList();
+        return parseListObject(repository.findAll(), ProductDto.class);
     }
 
     public ProductDto findById(Long id) {
-        Optional<Product> result = repository.findById(id);
+        Product result = repository.findById(id).orElseThrow(RuntimeException::new);
 
-        return toDto(result.orElseThrow(RuntimeException::new));
+        return parseObject(result, ProductDto.class);
     }
 
     public ProductDto create(ProductDto product) {
         if (product == null) throw new RuntimeException();
 
-        return toDto(repository.save(toModel(product)));
+        Product entity = parseObject(product, Product.class);
+
+        return parseObject(repository.save(entity), ProductDto.class);
     }
 
     public ProductDto update(ProductDto product) {
 
         if (product == null) throw new RuntimeException();
 
-        Product entity = repository.findById(product.getId()).orElseThrow(RuntimeException::new);
+        Product entity = parseObject(repository.findById(product.getId()).orElseThrow(RuntimeException::new), Product.class);
 
         entity.setName(product.getName());
         entity.setPrice(product.getPrice());
 
-        return toDto(repository.save(entity));
+        return parseObject(repository.save(entity), ProductDto.class);
     }
 
     public void delete(Long id) {
@@ -53,5 +53,4 @@ public class ProductService {
 
         repository.delete(product);
     }
-
 }

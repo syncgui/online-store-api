@@ -1,17 +1,15 @@
 package github.syncgui.onlinestoreapi.services;
 
 import github.syncgui.onlinestoreapi.dtos.UserDto;
-import github.syncgui.onlinestoreapi.mappers.UserMapper;
 import github.syncgui.onlinestoreapi.models.User;
 import github.syncgui.onlinestoreapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import static github.syncgui.onlinestoreapi.mappers.UserMapper.toDto;
-import static github.syncgui.onlinestoreapi.mappers.UserMapper.toModel;
+import static github.syncgui.onlinestoreapi.mappers.Mapper.parseListObject;
+import static github.syncgui.onlinestoreapi.mappers.Mapper.parseObject;
 
 @Service
 public class UserService {
@@ -20,31 +18,33 @@ public class UserService {
     UserRepository repository;
 
     public List<UserDto> findAll()  {
-        return repository.findAll().stream().map(UserMapper::toDto).toList();
+        return parseListObject(repository.findAll(), UserDto.class);
     }
 
     public UserDto findById(Long id) {
-        Optional<User> result = repository.findById(id);
+        User result = repository.findById(id).orElseThrow(RuntimeException::new);
 
-        return toDto(result.orElseThrow(RuntimeException::new));
+        return parseObject(result, UserDto.class);
     }
 
     public UserDto create(UserDto user) {
         if (user == null) throw new RuntimeException();
 
-        return toDto(repository.save(toModel(user)));
+        User entity = parseObject(user, User.class);
+
+        return parseObject(repository.save(entity), UserDto.class);
     }
 
     public UserDto update(UserDto user) {
         if (user == null) throw new RuntimeException();
 
-        User entity = repository.findById(user.getId()).orElseThrow(RuntimeException::new);
+        User entity = parseObject(repository.findById(user.getId()).orElseThrow(RuntimeException::new), User.class);
 
         entity.setName(user.getName());
         entity.setEmail(user.getEmail());
         entity.setPassword(user.getPassword());
 
-        return toDto(repository.save(entity));
+        return parseObject(repository.save(entity), UserDto.class);
     }
 
     public void delete(Long id) {
@@ -52,7 +52,4 @@ public class UserService {
 
         repository.delete(user);
     }
-
-    String string = "oi";
-
 }

@@ -3,13 +3,13 @@ package github.syncgui.onlinestoreapi.dtos;
 import github.syncgui.onlinestoreapi.models.Product;
 import github.syncgui.onlinestoreapi.models.User;
 import jakarta.validation.constraints.Min;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class CartDto {
 
     private User user;
