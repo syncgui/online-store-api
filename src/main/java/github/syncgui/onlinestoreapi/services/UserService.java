@@ -1,6 +1,8 @@
 package github.syncgui.onlinestoreapi.services;
 
 import github.syncgui.onlinestoreapi.dtos.UserDto;
+import github.syncgui.onlinestoreapi.exceptions.RequiredObjectIsNullException;
+import github.syncgui.onlinestoreapi.exceptions.ResourceNotFoundException;
 import github.syncgui.onlinestoreapi.models.User;
 import github.syncgui.onlinestoreapi.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +24,13 @@ public class UserService {
     }
 
     public UserDto findById(Long id) {
-        User result = repository.findById(id).orElseThrow(RuntimeException::new);
+        User result = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!"));
 
         return parseObject(result, UserDto.class);
     }
 
     public UserDto create(UserDto user) {
-        if (user == null) throw new RuntimeException();
+        if (user == null) throw new RequiredObjectIsNullException();
 
         User entity = parseObject(user, User.class);
 
@@ -36,9 +38,9 @@ public class UserService {
     }
 
     public UserDto update(UserDto user) {
-        if (user == null) throw new RuntimeException();
+        if (user == null) throw new RequiredObjectIsNullException();
 
-        User entity = parseObject(repository.findById(user.getId()).orElseThrow(RuntimeException::new), User.class);
+        User entity = parseObject(repository.findById(user.getId()).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!")), User.class);
 
         entity.setName(user.getName());
         entity.setEmail(user.getEmail());
@@ -48,7 +50,7 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        User user = repository.findById(id).orElseThrow(RuntimeException::new);
+        User user = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!"));
 
         repository.delete(user);
     }

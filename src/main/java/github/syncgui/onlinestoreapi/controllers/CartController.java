@@ -16,7 +16,7 @@ public class CartController {
     CartService service;
 
     @PostMapping(value = "/{id}")
-    public CartDto addCArt(@PathVariable(value = "id") Long id, @RequestBody List<ProductDto> products) {
+    public CartDto addCart(@PathVariable(value = "id") Long id, @RequestBody List<ProductDto> products) {
         return service.create(id, products);
     }
 

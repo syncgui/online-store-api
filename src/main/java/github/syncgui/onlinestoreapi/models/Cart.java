@@ -14,7 +14,6 @@ import java.util.Objects;
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToMany

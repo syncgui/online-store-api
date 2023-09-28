@@ -1,6 +1,8 @@
 package github.syncgui.onlinestoreapi.services;
 
 import github.syncgui.onlinestoreapi.dtos.ProductDto;
+import github.syncgui.onlinestoreapi.exceptions.RequiredObjectIsNullException;
+import github.syncgui.onlinestoreapi.exceptions.ResourceNotFoundException;
 import github.syncgui.onlinestoreapi.models.Product;
 import github.syncgui.onlinestoreapi.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +24,13 @@ public class ProductService {
     }
 
     public ProductDto findById(Long id) {
-        Product result = repository.findById(id).orElseThrow(RuntimeException::new);
+        Product result = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!"));
 
         return parseObject(result, ProductDto.class);
     }
 
     public ProductDto create(ProductDto product) {
-        if (product == null) throw new RuntimeException();
+        if (product == null) throw new RequiredObjectIsNullException();
 
         Product entity = parseObject(product, Product.class);
 
@@ -36,10 +38,9 @@ public class ProductService {
     }
 
     public ProductDto update(ProductDto product) {
+        if (product == null) throw new RequiredObjectIsNullException();
 
-        if (product == null) throw new RuntimeException();
-
-        Product entity = parseObject(repository.findById(product.getId()).orElseThrow(RuntimeException::new), Product.class);
+        Product entity = parseObject(repository.findById(product.getId()).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!")), Product.class);
 
         entity.setName(product.getName());
         entity.setPrice(product.getPrice());
@@ -48,9 +49,7 @@ public class ProductService {
     }
 
     public void delete(Long id) {
-
-        Product product = repository.findById(id).orElseThrow(RuntimeException::new);
-
+        Product product = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Records not found for this ID!"));
         repository.delete(product);
     }
 }

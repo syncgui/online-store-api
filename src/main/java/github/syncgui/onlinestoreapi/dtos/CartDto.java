@@ -1,6 +1,8 @@
 package github.syncgui.onlinestoreapi.dtos;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Objects;
